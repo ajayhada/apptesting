@@ -10,19 +10,10 @@ generator client {
 model User {
   createdAt DateTime @default(now())
   firstName String?
-  group     Group[]
   id        String   @id @default(cuid())
   lastName  String?
   password  String
   roles     String[]
   updatedAt DateTime @updatedAt
   username  String   @unique
-}
-
-model Group {
-  createdAt DateTime @default(now())
-  id        String   @id @default(cuid())
-  name      String   @unique
-  updatedAt DateTime @updatedAt
-  users     User[]
 }
