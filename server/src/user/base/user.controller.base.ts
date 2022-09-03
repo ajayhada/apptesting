@@ -27,9 +27,6 @@ import { UserWhereUniqueInput } from "./UserWhereUniqueInput";
 import { UserFindManyArgs } from "./UserFindManyArgs";
 import { UserUpdateInput } from "./UserUpdateInput";
 import { User } from "./User";
-import { GroupFindManyArgs } from "../../group/base/GroupFindManyArgs";
-import { Group } from "../../group/base/Group";
-import { GroupWhereUniqueInput } from "../../group/base/GroupWhereUniqueInput";
 @swagger.ApiBearerAuth()
 @common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class UserControllerBase {
@@ -192,101 +189,5 @@ export class UserControllerBase {
       }
       throw error;
     }
-  }
-
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Group",
-    action: "read",
-    possession: "any",
-  })
-  @common.Get("/:id/group")
-  @ApiNestedQuery(GroupFindManyArgs)
-  async findManyGroup(
-    @common.Req() request: Request,
-    @common.Param() params: UserWhereUniqueInput
-  ): Promise<Group[]> {
-    const query = plainToClass(GroupFindManyArgs, request.query);
-    const results = await this.service.findGroup(params.id, {
-      ...query,
-      select: {
-        createdAt: true,
-        id: true,
-        name: true,
-        updatedAt: true,
-      },
-    });
-    if (results === null) {
-      throw new errors.NotFoundException(
-        `No resource was found for ${JSON.stringify(params)}`
-      );
-    }
-    return results;
-  }
-
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "update",
-    possession: "any",
-  })
-  @common.Post("/:id/group")
-  async connectGroup(
-    @common.Param() params: UserWhereUniqueInput,
-    @common.Body() body: GroupWhereUniqueInput[]
-  ): Promise<void> {
-    const data = {
-      group: {
-        connect: body,
-      },
-    };
-    await this.service.update({
-      where: params,
-      data,
-      select: { id: true },
-    });
-  }
-
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "update",
-    possession: "any",
-  })
-  @common.Patch("/:id/group")
-  async updateGroup(
-    @common.Param() params: UserWhereUniqueInput,
-    @common.Body() body: GroupWhereUniqueInput[]
-  ): Promise<void> {
-    const data = {
-      group: {
-        set: body,
-      },
-    };
-    await this.service.update({
-      where: params,
-      data,
-      select: { id: true },
-    });
-  }
-
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "update",
-    possession: "any",
-  })
-  @common.Delete("/:id/group")
-  async disconnectGroup(
-    @common.Param() params: UserWhereUniqueInput,
-    @common.Body() body: GroupWhereUniqueInput[]
-  ): Promise<void> {
-    const data = {
-      group: {
-        disconnect: body,
-      },
-    };
-    await this.service.update({
-      where: params,
-      data,
-      select: { id: true },
-    });
   }
 }
